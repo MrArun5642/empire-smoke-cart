@@ -96,10 +96,26 @@ export const productsAPI = {
   },
 };
 
-// Categories API (placeholder)
+// Categories API
 export const categoriesAPI = {
-  getAll: async () => {
-    return apiRequest('/api/v1/categories');
+  getAll: async (activeOnly: boolean = true) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('active_only', activeOnly.toString());
+    return apiRequest(`/api/v1/categories/?${queryParams.toString()}`);
+  },
+
+  getById: async (id: number) => {
+    return apiRequest(`/api/v1/categories/${id}`);
+  },
+
+  getBySlug: async (slug: string) => {
+    return apiRequest(`/api/v1/categories/slug/${slug}`);
+  },
+
+  getSubcategories: async (categoryId: number, activeOnly: boolean = true) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('active_only', activeOnly.toString());
+    return apiRequest(`/api/v1/categories/${categoryId}/subcategories?${queryParams.toString()}`);
   },
 };
 
