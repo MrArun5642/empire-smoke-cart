@@ -1,5 +1,5 @@
 // API configuration and helper functions
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:9005';
 
 // Token management
 export const getToken = () => localStorage.getItem('access_token');
