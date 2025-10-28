@@ -79,20 +79,65 @@ export const authAPI = {
   },
 };
 
-// Products API (placeholder for when we get the endpoints)
+// Products API
 export const productsAPI = {
-  getAll: async (params?: { category?: string; search?: string; page?: number; limit?: number }) => {
+  getAll: async (params?: { 
+    page?: number; 
+    page_size?: number;
+    category_id?: number; 
+    subcategory_id?: number;
+    brand_id?: number;
+    search?: string; 
+    is_featured?: boolean;
+    is_new_arrival?: boolean;
+    is_best_seller?: boolean;
+    is_on_sale?: boolean;
+    min_price?: number;
+    max_price?: number;
+    sort_by?: string;
+    sort_order?: 'asc' | 'desc';
+  }) => {
     const queryParams = new URLSearchParams();
-    if (params?.category) queryParams.append('category', params.category);
-    if (params?.search) queryParams.append('search', params.search);
     if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+    if (params?.category_id) queryParams.append('category_id', params.category_id.toString());
+    if (params?.subcategory_id) queryParams.append('subcategory_id', params.subcategory_id.toString());
+    if (params?.brand_id) queryParams.append('brand_id', params.brand_id.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.is_featured !== undefined) queryParams.append('is_featured', params.is_featured.toString());
+    if (params?.is_new_arrival !== undefined) queryParams.append('is_new_arrival', params.is_new_arrival.toString());
+    if (params?.is_best_seller !== undefined) queryParams.append('is_best_seller', params.is_best_seller.toString());
+    if (params?.is_on_sale !== undefined) queryParams.append('is_on_sale', params.is_on_sale.toString());
+    if (params?.min_price) queryParams.append('min_price', params.min_price.toString());
+    if (params?.max_price) queryParams.append('max_price', params.max_price.toString());
+    if (params?.sort_by) queryParams.append('sort_by', params.sort_by);
+    if (params?.sort_order) queryParams.append('sort_order', params.sort_order);
     
-    return apiRequest(`/api/v1/products?${queryParams.toString()}`);
+    return apiRequest(`/api/v1/products/?${queryParams.toString()}`);
   },
 
-  getById: async (id: string) => {
+  getById: async (id: number) => {
     return apiRequest(`/api/v1/products/${id}`);
+  },
+
+  getBySlug: async (slug: string) => {
+    return apiRequest(`/api/v1/products/slug/${slug}`);
+  },
+
+  getFeatured: async (limit: number = 10) => {
+    return apiRequest(`/api/v1/products/featured/list?limit=${limit}`);
+  },
+
+  getNewArrivals: async (limit: number = 10) => {
+    return apiRequest(`/api/v1/products/new-arrivals/list?limit=${limit}`);
+  },
+
+  getBestSellers: async (limit: number = 10) => {
+    return apiRequest(`/api/v1/products/best-sellers/list?limit=${limit}`);
+  },
+
+  getOnSale: async (limit: number = 10) => {
+    return apiRequest(`/api/v1/products/on-sale/list?limit=${limit}`);
   },
 };
 
@@ -119,10 +164,27 @@ export const categoriesAPI = {
   },
 };
 
-// Cart API (placeholder)
+// Brands API
+export const brandsAPI = {
+  getAll: async (featuredOnly: boolean = false) => {
+    const queryParams = new URLSearchParams();
+    if (featuredOnly) queryParams.append('featured_only', 'true');
+    return apiRequest(`/api/v1/brands/?${queryParams.toString()}`);
+  },
+
+  getById: async (id: number) => {
+    return apiRequest(`/api/v1/brands/${id}`);
+  },
+
+  getBySlug: async (slug: string) => {
+    return apiRequest(`/api/v1/brands/slug/${slug}`);
+  },
+};
+
+// Cart API
 export const cartAPI = {
   get: async () => {
-    return apiRequest('/api/v1/cart');
+    return apiRequest('/api/v1/cart/');
   },
 
   addItem: async (productId: number, quantity: number) => {
@@ -143,5 +205,15 @@ export const cartAPI = {
     return apiRequest(`/api/v1/cart/items/${itemId}`, {
       method: 'DELETE',
     });
+  },
+
+  clear: async () => {
+    return apiRequest('/api/v1/cart/clear', {
+      method: 'DELETE',
+    });
+  },
+
+  getCount: async () => {
+    return apiRequest('/api/v1/cart/count');
   },
 };
