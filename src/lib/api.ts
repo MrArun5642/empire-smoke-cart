@@ -345,3 +345,33 @@ export const adminProductsAPI = {
     });
   },
 };
+
+// Admin Orders API
+export const adminOrdersAPI = {
+  getAll: async (params?: { page?: number; page_size?: number; status_filter?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+    if (params?.status_filter) queryParams.append('status_filter', params.status_filter);
+    
+    return apiRequest(`/api/v1/admin/orders?${queryParams.toString()}`);
+  },
+
+  updateStatus: async (orderId: number, orderStatus: string) => {
+    return apiRequest(`/api/v1/admin/orders/${orderId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ order_status: orderStatus }),
+    });
+  },
+};
+
+// Admin Inventory API
+export const adminInventoryAPI = {
+  getLowStock: async () => {
+    return apiRequest('/api/v1/admin/inventory/low-stock');
+  },
+
+  getOutOfStock: async () => {
+    return apiRequest('/api/v1/admin/inventory/out-of-stock');
+  },
+};
