@@ -280,3 +280,68 @@ export const adminDashboardAPI = {
     return apiRequest(`/api/v1/admin/dashboard/revenue-chart?${queryParams.toString()}`);
   },
 };
+
+// Admin Products API
+export const adminProductsAPI = {
+  create: async (productData: {
+    product_name: string;
+    category_id: number;
+    base_price: number;
+    description?: string;
+    short_description?: string;
+    brand_id?: number;
+    subcategory_id?: number;
+    sku?: string;
+    quantity_available?: number;
+  }) => {
+    return apiRequest('/api/v1/admin/products', {
+      method: 'POST',
+      body: JSON.stringify(productData),
+    });
+  },
+
+  update: async (productId: number, updateData: {
+    product_name?: string;
+    description?: string;
+    short_description?: string;
+    category_id?: number;
+    subcategory_id?: number;
+    brand_id?: number;
+    sku?: string;
+    is_active?: boolean;
+    is_featured?: boolean;
+  }) => {
+    return apiRequest(`/api/v1/admin/products/${productId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData),
+    });
+  },
+
+  updatePrice: async (productId: number, priceData: {
+    base_price?: number;
+    sale_price?: number;
+    is_on_sale?: boolean;
+    discount_percentage?: number;
+  }) => {
+    return apiRequest(`/api/v1/admin/products/${productId}/price`, {
+      method: 'PUT',
+      body: JSON.stringify(priceData),
+    });
+  },
+
+  updateInventory: async (productId: number, inventoryData: {
+    quantity_available?: number;
+    reorder_level?: number;
+  }) => {
+    return apiRequest(`/api/v1/admin/products/${productId}/inventory`, {
+      method: 'PUT',
+      body: JSON.stringify(inventoryData),
+    });
+  },
+
+  delete: async (productId: number) => {
+    return apiRequest(`/api/v1/admin/products/${productId}`, {
+      method: 'DELETE',
+    });
+  },
+};
