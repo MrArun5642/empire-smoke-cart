@@ -217,3 +217,66 @@ export const cartAPI = {
     return apiRequest('/api/v1/cart/count');
   },
 };
+
+// Orders API
+export const ordersAPI = {
+  create: async (shippingAddressId: number, billingAddressId: number, paymentMethod: string) => {
+    return apiRequest('/api/v1/orders/', {
+      method: 'POST',
+      body: JSON.stringify({
+        shipping_address_id: shippingAddressId,
+        billing_address_id: billingAddressId,
+        payment_method: paymentMethod,
+      }),
+    });
+  },
+
+  getAll: async (params?: { status_filter?: string; limit?: number; offset?: number }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.status_filter) queryParams.append('status_filter', params.status_filter);
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.offset) queryParams.append('offset', params.offset.toString());
+    
+    return apiRequest(`/api/v1/orders/?${queryParams.toString()}`);
+  },
+
+  getById: async (id: number) => {
+    return apiRequest(`/api/v1/orders/${id}`);
+  },
+
+  getByOrderNumber: async (orderNumber: string) => {
+    return apiRequest(`/api/v1/orders/number/${orderNumber}`);
+  },
+
+  cancel: async (id: number) => {
+    return apiRequest(`/api/v1/orders/${id}/cancel`, {
+      method: 'POST',
+    });
+  },
+};
+
+// Admin Dashboard API
+export const adminDashboardAPI = {
+  getStats: async () => {
+    return apiRequest('/api/v1/admin/dashboard/stats');
+  },
+
+  getRecentOrders: async (limit: number = 10) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('limit', limit.toString());
+    return apiRequest(`/api/v1/admin/dashboard/recent-orders?${queryParams.toString()}`);
+  },
+
+  getTopProducts: async (params?: { limit?: number; days?: number }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.days) queryParams.append('days', params.days.toString());
+    return apiRequest(`/api/v1/admin/dashboard/top-products?${queryParams.toString()}`);
+  },
+
+  getRevenueChart: async (days: number = 30) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('days', days.toString());
+    return apiRequest(`/api/v1/admin/dashboard/revenue-chart?${queryParams.toString()}`);
+  },
+};
