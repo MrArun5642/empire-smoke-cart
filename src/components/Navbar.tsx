@@ -1,12 +1,18 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User, Menu, Search } from "lucide-react";
+import { ShoppingCart, User, Menu, Search, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getToken } from "@/lib/api";
 
 export const Navbar = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(!!getToken());
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -24,12 +30,12 @@ export const Navbar = () => {
             <Link to="/products" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
               Products
             </Link>
-            <Link to="/categories" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-              Categories
-            </Link>
-            <Link to="/brands" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
-              Brands
-            </Link>
+            {isLoggedIn && (
+              <Link to="/admin" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors flex items-center gap-1">
+                <Shield className="h-4 w-4" />
+                Admin
+              </Link>
+            )}
           </div>
 
           {/* Search Bar */}
@@ -91,27 +97,23 @@ export const Navbar = () => {
               placeholder="Search products..." 
               className="bg-secondary border-border"
             />
-            <Link 
-              to="/products" 
+            <Link
+              to="/products"
               className="block py-2 text-sm font-medium text-foreground/80 hover:text-primary"
               onClick={() => setIsMenuOpen(false)}
             >
               Products
             </Link>
-            <Link 
-              to="/categories" 
-              className="block py-2 text-sm font-medium text-foreground/80 hover:text-primary"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Categories
-            </Link>
-            <Link 
-              to="/brands" 
-              className="block py-2 text-sm font-medium text-foreground/80 hover:text-primary"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Brands
-            </Link>
+            {isLoggedIn && (
+              <Link
+                to="/admin"
+                className="flex items-center gap-2 py-2 text-sm font-medium text-foreground/80 hover:text-primary"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Shield className="h-4 w-4" />
+                Admin Dashboard
+              </Link>
+            )}
             <Button 
               onClick={() => {
                 navigate("/auth");

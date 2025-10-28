@@ -8,45 +8,47 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 7%;
+    --background: 220 15% 6%;
     --foreground: 40 10% 95%;
 
-    --card: 0 0% 10%;
+    --card: 220 15% 9%;
     --card-foreground: 40 10% 95%;
 
-    --popover: 0 0% 12%;
+    --popover: 220 15% 11%;
     --popover-foreground: 40 10% 95%;
 
     --primary: 38 92% 50%;
-    --primary-foreground: 0 0% 10%;
+    --primary-foreground: 220 15% 6%;
 
-    --secondary: 0 0% 15%;
+    --secondary: 220 12% 14%;
     --secondary-foreground: 40 10% 95%;
 
-    --muted: 0 0% 18%;
+    --muted: 220 10% 18%;
     --muted-foreground: 40 5% 65%;
 
-    --accent: 38 92% 50%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 30 80% 55%;
+    --accent-foreground: 220 15% 6%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 40 10% 95%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
     --ring: 38 92% 50%;
 
     --radius: 0.75rem;
 
-    /* Premium gradients */
-    --gradient-premium: linear-gradient(135deg, hsl(38 92% 50% / 0.2), hsl(38 92% 50% / 0.05));
-    --gradient-hero: linear-gradient(180deg, hsl(0 0% 7%), hsl(0 0% 10%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 12%), hsl(0 0% 8%));
-    
-    /* Shadows */
-    --shadow-premium: 0 10px 40px -10px hsl(38 92% 50% / 0.3);
-    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.5);
-    
+    /* Premium smoke-themed gradients */
+    --gradient-premium: linear-gradient(135deg, hsl(38 92% 50% / 0.15), hsl(220 15% 9% / 0.8));
+    --gradient-hero: linear-gradient(180deg, hsl(220 15% 6%), hsl(220 15% 10%));
+    --gradient-card: linear-gradient(135deg, hsl(220 15% 11%), hsl(220 15% 8%));
+    --gradient-smoke: linear-gradient(45deg, hsl(220 15% 6% / 0.9), hsl(38 92% 50% / 0.05));
+
+    /* Enhanced shadows */
+    --shadow-premium: 0 10px 40px -10px hsl(38 92% 50% / 0.4);
+    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.6);
+    --shadow-glow: 0 0 20px hsl(38 92% 50% / 0.3);
+
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -59,5 +61,32 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background: linear-gradient(135deg, hsl(220 15% 6%), hsl(220 15% 8%));
+  }
+}
+
+@layer utilities {
+  .shadow-premium {
+    box-shadow: var(--shadow-premium);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .bg-gradient-premium {
+    background: var(--gradient-premium);
+  }
+
+  .bg-gradient-smoke {
+    background: var(--gradient-smoke);
+  }
+
+  .transition-smooth {
+    transition: var(--transition-smooth);
   }
 }

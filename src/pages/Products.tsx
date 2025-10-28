@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Loader2 } from "lucide-react";
+import { productsAPI } from "@/lib/api";
+import { toast } from "sonner";
 import productVape from "@/assets/product-vape.jpg";
 import productCigar from "@/assets/product-cigar.jpg";
 import productHookah from "@/assets/product-hookah.jpg";
@@ -11,9 +13,11 @@ import productHookah from "@/assets/product-hookah.jpg";
 const Products = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [products, setProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data - will be replaced with API call
-  const products = [
+  // Fallback mock data
+  const mockProducts = [
     {
       id: 1,
       name: "Premium Disposable Vape - Mixed Berry",
@@ -70,6 +74,41 @@ const Products = () => {
     },
   ];
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        const response = await productsAPI.getAll({
+          page: 1,
+          page_size: 50,
+        });
+
+        if (response && Array.isArray(response.items)) {
+          const mappedProducts = response.items.map((item: any) => ({
+            id: item.product_id,
+            name: item.product_name,
+            brand: item.brand_name || "Unknown Brand",
+            price: item.sale_price || item.base_price,
+            image: item.image_url || productVape,
+            inStock: item.quantity_available > 0,
+            category: item.category_slug || "general",
+          }));
+          setProducts(mappedProducts);
+        } else {
+          setProducts(mockProducts);
+        }
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+        toast.error("Using demo products - API connection unavailable");
+        setProducts(mockProducts);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          product.brand.toLowerCase().includes(searchQuery.toLowerCase());
@@ -118,7 +157,14 @@ const Products = () => {
       </div>
 
       {/* Products Grid */}
-      {filteredProducts.length > 0 ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading products...</p>
+          </div>
+        </div>
+      ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} {...product} />
@@ -127,7 +173,7 @@ const Products = () => {
       ) : (
         <div className="text-center py-16">
           <p className="text-muted-foreground text-lg mb-4">No products found</p>
-          <Button 
+          <Button
             variant="outline"
             onClick={() => {
               setSearchQuery("");
