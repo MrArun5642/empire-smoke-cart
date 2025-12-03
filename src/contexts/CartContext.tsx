@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { cartAPI } from '@/lib/api';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface CartItem {
     id: string;
@@ -27,6 +28,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [items, setItems] = useState<CartItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -65,9 +67,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const addToCart = async (product: { id: string; name: string; price: number; image: string }, quantity = 1) => {
         if (!user) {
-            toast.error("Please log in to add items to cart");
-            // You could also redirect to login page here
-            // navigate('/auth');
+            navigate('/auth');
             return;
         }
 
