@@ -71,41 +71,54 @@ const Orders = () => {
       {orders.length > 0 ? (
         <div className="space-y-6">
           {orders.map((order: any) => (
-            <Card key={order.id} className="border-border bg-card">
-              <CardHeader>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <CardTitle className="text-lg">Order #{order.id}</CardTitle>
-                    <CardDescription className="flex items-center gap-2 mt-1">
+            <Card key={order.id} className="border-border bg-card hover:shadow-lg transition-shadow duration-300">
+              <CardHeader className="pb-4">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  <div className="space-y-2">
+                    <CardTitle className="text-xl text-foreground">Order #{order.id}</CardTitle>
+                    <CardDescription className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      {new Date(order.created_at).toLocaleDateString()}
+                      {new Date(order.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
                     </CardDescription>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:text-right">
-                    <Badge className={`${getStatusColor(order.status)} text-white self-start sm:self-auto`}>
-                      {order.status}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 lg:text-right">
+                    <Badge className={`${getStatusColor(order.status)} text-white px-3 py-1 text-sm font-medium`}>
+                      {order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
                     </Badge>
-                    <p className="text-2xl font-bold text-primary">
-                      ${order.total_amount?.toFixed(2)}
-                    </p>
+                    <div className="text-right">
+                      <p className="text-sm text-muted-foreground">Total Amount</p>
+                      <p className="text-3xl font-bold text-primary">
+                        ${order.total_amount?.toFixed(2)}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <div className="space-y-4">
+                  <h4 className="font-semibold text-foreground border-b border-border pb-2">
+                    Order Items ({order.items?.length || 0})
+                  </h4>
                   {order.items && order.items.map((item: any) => (
-                    <div key={item.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-secondary rounded-lg">
-                      <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center flex-shrink-0 mx-auto sm:mx-0">
-                        <Package className="h-8 w-8 text-muted-foreground" />
+                    <div key={item.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-gradient-to-r from-secondary/50 to-secondary/30 rounded-xl border border-border/50 hover:border-primary/20 transition-colors">
+                      <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg flex items-center justify-center flex-shrink-0 mx-auto sm:mx-0 shadow-sm">
+                        <Package className="h-8 w-8 text-primary" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-center sm:text-left">{item.product_name}</h4>
-                        <p className="text-sm text-muted-foreground text-center sm:text-left">
-                          Quantity: {item.quantity} × ${item.unit_price?.toFixed(2)}
-                        </p>
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <h4 className="font-semibold text-foreground text-center sm:text-left line-clamp-2">{item.product_name}</h4>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-muted-foreground">
+                          <span className="text-center sm:text-left">Qty: {item.quantity}</span>
+                          <span className="hidden sm:block">×</span>
+                          <span className="text-center sm:text-left">${item.unit_price?.toFixed(2)} each</span>
+                        </div>
                       </div>
                       <div className="text-center sm:text-right">
-                        <p className="font-bold text-lg">${item.subtotal?.toFixed(2)}</p>
+                        <p className="text-sm text-muted-foreground">Subtotal</p>
+                        <p className="font-bold text-xl text-primary">${item.subtotal?.toFixed(2)}</p>
                       </div>
                     </div>
                   ))}
@@ -115,16 +128,24 @@ const Orders = () => {
           ))}
         </div>
       ) : (
-        <Card className="border-border bg-card">
-          <CardContent className="text-center py-16">
-            <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No orders yet</h3>
-            <p className="text-muted-foreground mb-6">
-              You haven't placed any orders yet. Start shopping to see your orders here.
+        <Card className="border-border bg-gradient-to-br from-card to-secondary/20">
+          <CardContent className="text-center py-20">
+            <div className="w-24 h-24 bg-gradient-to-br from-primary/10 to-primary/5 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Package className="h-12 w-12 text-primary" />
+            </div>
+            <h3 className="text-2xl font-bold text-foreground mb-3">No orders yet</h3>
+            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+              You haven't placed any orders yet. Start exploring our premium collection of tobacco and vape products to begin your shopping journey.
             </p>
-            <Button onClick={() => navigate('/products')} className="bg-primary hover:bg-primary/90">
-              Browse Products
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button onClick={() => navigate('/products')} className="bg-primary hover:bg-primary/90 px-8 py-3 text-lg">
+                <Package className="mr-2 h-5 w-5" />
+                Browse Products
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/categories')} className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg">
+                View Categories
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}

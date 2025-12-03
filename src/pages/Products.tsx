@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,8 @@ import productCigar from "@/assets/product-cigar.jpg";
 import productHookah from "@/assets/product-hookah.jpg";
 
 const Products = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,9 +80,11 @@ const Products = () => {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
+        const searchParam = searchParams.get("search");
         const response = await productsAPI.getAll({
           page: 1,
           page_size: 50,
+          search: searchParam || undefined,
         });
 
         if (response && (response as any).products && Array.isArray((response as any).products)) {
@@ -113,11 +117,20 @@ const Products = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [searchParams]);
+
+  const handleLocalSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim()) {
+      setSearchParams({ search: query.trim() });
+    } else {
+      setSearchParams({});
+    }
+  };
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.brand.toLowerCase().includes(searchQuery.toLowerCase());
+                          product.brand.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -137,7 +150,7 @@ const Products = () => {
           <Input
             placeholder="Search products..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleLocalSearch(e.target.value)}
             className="pl-10 bg-secondary border-border"
           />
         </div>
