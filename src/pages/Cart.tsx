@@ -7,7 +7,7 @@ const Cart = () => {
     const { items, updateQuantity, removeFromCart, cartCount, isLoading } = useCart();
     const navigate = useNavigate();
 
-    const subtotal = items.reduce((acc, item) => acc + (item.product.base_price * item.quantity), 0);
+    const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
     if (isLoading) {
         return <div className="container mx-auto px-4 py-8">Loading cart...</div>;
@@ -24,36 +24,34 @@ const Cart = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-6 sm:py-8">
             <h1 className="text-3xl font-bold mb-8">Shopping Cart ({cartCount} items)</h1>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                 <div className="lg:col-span-2 space-y-4">
                     {items.map((item) => (
-                        <div key={item.id} className="flex gap-4 p-4 border rounded-lg bg-card">
-                            <div className="w-24 h-24 bg-secondary rounded-md overflow-hidden flex-shrink-0">
-                                {item.product.images?.[0] && (
-                                    <img
-                                        src={item.product.images[0].image_url}
-                                        alt={item.product.product_name}
-                                        className="w-full h-full object-cover"
-                                    />
-                                )}
+                        <div key={item.id} className="flex flex-col sm:flex-row gap-4 p-4 border rounded-lg bg-card">
+                            <div className="w-full sm:w-24 h-48 sm:h-24 bg-secondary rounded-md overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
+                                <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
 
-                            <div className="flex-1 flex flex-col justify-between">
-                                <div className="flex justify-between">
-                                    <h3 className="font-semibold">{item.product.product_name}</h3>
+                            <div className="flex-1 flex flex-col justify-between min-w-0">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h3 className="font-semibold text-sm sm:text-base pr-2 line-clamp-2">{item.name}</h3>
                                     <button
                                         onClick={() => removeFromCart(item.id)}
-                                        className="text-muted-foreground hover:text-destructive transition-colors"
+                                        className="text-muted-foreground hover:text-destructive transition-colors flex-shrink-0"
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </button>
                                 </div>
 
-                                <div className="flex justify-between items-end">
-                                    <div className="flex items-center gap-2 border rounded-md p-1">
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
+                                    <div className="flex items-center gap-2 border rounded-md p-1 self-start">
                                         <button
                                             onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                                             className="p-1 hover:bg-secondary rounded"
@@ -68,9 +66,9 @@ const Cart = () => {
                                             <Plus className="h-3 w-3" />
                                         </button>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-bold">${(item.product.base_price * item.quantity).toFixed(2)}</p>
-                                        <p className="text-xs text-muted-foreground">${item.product.base_price.toFixed(2)} each</p>
+                                    <div className="text-left sm:text-right">
+                                        <p className="font-bold text-lg">${(item.price * item.quantity).toFixed(2)}</p>
+                                        <p className="text-xs text-muted-foreground">${item.price.toFixed(2)} each</p>
                                     </div>
                                 </div>
                             </div>

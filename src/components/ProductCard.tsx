@@ -39,9 +39,9 @@ export const ProductCard = ({ id, name, brand, price, image, inStock }: ProductC
         />
       </div>
       <CardContent className="p-4">
-        <p className="text-xs text-primary font-medium mb-1">{brand}</p>
-        <h3 className="font-semibold text-foreground line-clamp-2 mb-2">{name}</h3>
-        <p className="text-2xl font-bold text-primary">${price.toFixed(2)}</p>
+        <p className="text-xs text-primary font-medium mb-1 truncate">{brand}</p>
+        <h3 className="font-semibold text-foreground line-clamp-2 mb-2 text-sm sm:text-base">{name}</h3>
+        <p className="text-xl sm:text-2xl font-bold text-primary">${(price || 0).toFixed(2)}</p>
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button

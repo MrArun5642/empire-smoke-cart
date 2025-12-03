@@ -4,17 +4,21 @@ import { ArrowRight, Shield, Truck, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { productsAPI } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import heroImage from "@/assets/hero-bg.jpg";
 
 const Home = () => {
   const navigate = useNavigate();
-  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const { user } = useAuth();
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const products = await productsAPI.getFeatured(4);
+        // Get regular products instead of featured since backend doesn't have getFeatured
+        const response = await productsAPI.getAll({ page: 1, page_size: 4 });
+        const products = (response as any).products || [];
         setFeaturedProducts(products);
       } catch (error) {
         console.error("Failed to fetch products:", error);
@@ -46,7 +50,7 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[400px] sm:h-[500px] lg:h-[600px] flex items-center justify-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
@@ -156,27 +160,29 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-premium border-y border-primary/20">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-            Ready to Elevate Your Experience?
-          </h2>
-          <p className="text-xl text-foreground/80 mb-8 max-w-2xl mx-auto">
-            Join thousands of satisfied customers. Sign up today and get exclusive access to deals.
-          </p>
-          <Button
-            size="lg"
-            onClick={() => navigate("/auth")}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-premium"
-          >
-            Create Account
-          </Button>
-          <p className="mt-4 text-sm text-muted-foreground">
-            Must be 21+ years old to register
-          </p>
-        </div>
-      </section>
+      {/* CTA Section - Only show if user is not logged in */}
+      {!user && (
+        <section className="py-20 bg-gradient-premium border-y border-primary/20">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+              Ready to Elevate Your Experience?
+            </h2>
+            <p className="text-xl text-foreground/80 mb-8 max-w-2xl mx-auto">
+              Join thousands of satisfied customers. Sign up today and get exclusive access to deals.
+            </p>
+            <Button
+              size="lg"
+              onClick={() => navigate("/auth")}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-premium"
+            >
+              Create Account
+            </Button>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Must be 21+ years old to register
+            </p>
+          </div>
+        </section>
+      )}
     </div>
   );
 };

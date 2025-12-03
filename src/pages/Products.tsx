@@ -83,16 +83,22 @@ const Products = () => {
           page_size: 50,
         });
 
-        if (response && Array.isArray(response.items)) {
-          const mappedProducts = response.items.map((item: any) => ({
-            id: item.product_id,
-            name: item.product_name,
-            brand: item.brand_name || "Unknown Brand",
-            price: item.sale_price || item.base_price,
-            image: item.image_url || productVape,
-            inStock: item.quantity_available > 0,
-            category: item.category_slug || "general",
-          }));
+        if (response && (response as any).products && Array.isArray((response as any).products)) {
+          const mappedProducts = (response as any).products.map((item: any) => {
+            // Ensure price is always a number
+            const price = item.sale_price || item.price;
+            const numericPrice = typeof price === 'number' ? price : parseFloat(price) || 0;
+
+            return {
+              id: item.id,
+              name: item.name,
+              brand: item.brand || "Unknown Brand",
+              price: numericPrice,
+              image: item.image_url || productVape,
+              inStock: item.stock_quantity > 0,
+              category: "general", // Backend doesn't have category in product response
+            };
+          });
           setProducts(mappedProducts);
         } else {
           setProducts(mockProducts);
@@ -117,7 +123,7 @@ const Products = () => {
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-6 sm:py-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-foreground mb-2">Our Products</h1>

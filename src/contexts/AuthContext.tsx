@@ -2,11 +2,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI, getToken, clearTokens } from '@/lib/api';
 
 interface User {
-    id: number;
+    id: string;
     email: string;
-    first_name: string;
-    last_name: string;
+    first_name?: string;
+    last_name?: string;
     role: string;
+    status: string;
+    created_at: string;
 }
 
 interface AuthContextType {
