@@ -1,5 +1,5 @@
 // API configuration and helper functions
-const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:8000' : (import.meta.env.VITE_API_BASE_URL || 'https://127.0.0.1.5009');
+const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:8000' : (import.meta.env.VITE_API_BASE_URL || 'https://empiressmokedistribution-production.up.railway.app');
 
 // Token management
 export const getToken = () => localStorage.getItem('access_token');
