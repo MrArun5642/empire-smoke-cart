@@ -5,25 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { authAPI } from "@/lib/api";
+import { authAPI, ordersAPI } from "@/lib/api";
 import { toast } from "sonner";
-import { User, MapPin, Lock, LogOut } from "lucide-react";
+import { User, MapPin, Lock, LogOut, Package } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { user, logout, checkAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState<{
-    user_id: number;
-    email: string;
-    username?: string;
-    first_name?: string;
-    last_name?: string;
-    phone_number?: string;
-    date_of_birth?: string;
-    is_active: boolean;
-    is_verified: boolean;
-    created_at: string;
-  } | null>(null);
+  const [orders, setOrders] = useState<any[]>([]);
 
   const [profileData, setProfileData] = useState({
     first_name: "",
@@ -39,43 +30,36 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userData = await authAPI.getCurrentUser() as {
-          user_id: number;
-          email: string;
-          username?: string;
-          first_name?: string;
-          last_name?: string;
-          phone_number?: string;
-          date_of_birth?: string;
-          is_active: boolean;
-          is_verified: boolean;
-          created_at: string;
-        };
-        setUser(userData);
-        setProfileData({
-          first_name: userData.first_name || "",
-          last_name: userData.last_name || "",
-          phone_number: userData.phone_number || "",
-          username: userData.username || "",
-          date_of_birth: userData.date_of_birth || "",
-        });
-      } catch (error) {
-        toast.error("Please log in to view your profile");
-        navigate("/auth");
-      }
-    };
+    if (user) {
+      setProfileData({
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        phone_number: (user as any).phone_number || "",
+        username: (user as any).username || "",
+        date_of_birth: (user as any).date_of_birth || "",
+      });
+      fetchOrders();
+    } else {
+      // If not logged in, redirect is handled by protected route or checkAuth
+      // But here we might want to redirect if user is null after initial load
+    }
+  }, [user]);
 
-    fetchUser();
-  }, [navigate]);
+  const fetchOrders = async () => {
+    try {
+      const response = await ordersAPI.getAll();
+      setOrders(response.items || []);
+    } catch (error) {
+      console.error("Failed to fetch orders", error);
+    }
+  };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:9005';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
       const response = await fetch(`${API_BASE_URL}/api/v1/users/profile`, {
         method: "PUT",
         headers: {
@@ -90,8 +74,7 @@ const Profile = () => {
         throw new Error(error.detail);
       }
 
-      const updatedUser = await response.json();
-      setUser(updatedUser);
+      await checkAuth(); // Refresh user context
       toast.success("Profile updated successfully");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Update failed");
@@ -105,7 +88,7 @@ const Profile = () => {
     setIsLoading(true);
 
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:9005';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/change-password`, {
         method: "POST",
         headers: {
@@ -130,13 +113,13 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    authAPI.logout();
+    logout();
     toast.success("Logged out successfully");
     navigate("/");
   };
 
   if (!user) {
-    return null;
+    return <div className="p-8 text-center">Please log in to view your profile.</div>;
   }
 
   return (
@@ -150,10 +133,14 @@ const Profile = () => {
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-secondary">
+          <TabsList className="grid w-full grid-cols-4 bg-secondary">
             <TabsTrigger value="profile">
               <User className="h-4 w-4 mr-2" />
               Profile
+            </TabsTrigger>
+            <TabsTrigger value="orders">
+              <Package className="h-4 w-4 mr-2" />
+              Orders
             </TabsTrigger>
             <TabsTrigger value="addresses">
               <MapPin className="h-4 w-4 mr-2" />
@@ -239,6 +226,36 @@ const Profile = () => {
                     {isLoading ? "Updating..." : "Update Profile"}
                   </Button>
                 </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="orders">
+            <Card className="border-border bg-card shadow-card">
+              <CardHeader>
+                <CardTitle>Order History</CardTitle>
+                <CardDescription>View your past orders</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {orders.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No orders found.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {orders.map((order) => (
+                      <div key={order.id} className="border rounded-lg p-4 flex justify-between items-center">
+                        <div>
+                          <p className="font-semibold">Order #{order.order_number}</p>
+                          <p className="text-sm text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p>
+                          <p className="text-sm">Status: <span className="capitalize">{order.order_status}</span></p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold">${order.total_amount.toFixed(2)}</p>
+                          <Button variant="outline" size="sm" className="mt-2">View Details</Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

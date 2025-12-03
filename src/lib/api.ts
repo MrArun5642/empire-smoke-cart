@@ -1,5 +1,5 @@
 // API configuration and helper functions
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:9005';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:5009';
 
 // Token management
 export const getToken = () => localStorage.getItem('access_token');
@@ -81,13 +81,13 @@ export const authAPI = {
 
 // Products API
 export const productsAPI = {
-  getAll: async (params?: { 
-    page?: number; 
+  getAll: async (params?: {
+    page?: number;
     page_size?: number;
-    category_id?: number; 
+    category_id?: number;
     subcategory_id?: number;
     brand_id?: number;
-    search?: string; 
+    search?: string;
     is_featured?: boolean;
     is_new_arrival?: boolean;
     is_best_seller?: boolean;
@@ -112,11 +112,11 @@ export const productsAPI = {
     if (params?.max_price) queryParams.append('max_price', params.max_price.toString());
     if (params?.sort_by) queryParams.append('sort_by', params.sort_by);
     if (params?.sort_order) queryParams.append('sort_order', params.sort_order);
-    
+
     return apiRequest(`/api/v1/products/?${queryParams.toString()}`);
   },
 
-  getById: async (id: number) => {
+  getById: async (id: string) => {
     return apiRequest(`/api/v1/products/${id}`);
   },
 
@@ -187,21 +187,21 @@ export const cartAPI = {
     return apiRequest('/api/v1/cart/');
   },
 
-  addItem: async (productId: number, quantity: number) => {
+  addItem: async (productId: string, quantity: number) => {
     return apiRequest('/api/v1/cart/items', {
       method: 'POST',
       body: JSON.stringify({ product_id: productId, quantity }),
     });
   },
 
-  updateItem: async (itemId: number, quantity: number) => {
+  updateItem: async (itemId: string, quantity: number) => {
     return apiRequest(`/api/v1/cart/items/${itemId}`, {
       method: 'PUT',
       body: JSON.stringify({ quantity }),
     });
   },
 
-  removeItem: async (itemId: number) => {
+  removeItem: async (itemId: string) => {
     return apiRequest(`/api/v1/cart/items/${itemId}`, {
       method: 'DELETE',
     });
@@ -220,7 +220,7 @@ export const cartAPI = {
 
 // Orders API
 export const ordersAPI = {
-  create: async (shippingAddressId: number, billingAddressId: number, paymentMethod: string) => {
+  create: async (shippingAddressId: string, billingAddressId: string, paymentMethod: string) => {
     return apiRequest('/api/v1/orders/', {
       method: 'POST',
       body: JSON.stringify({
@@ -236,11 +236,11 @@ export const ordersAPI = {
     if (params?.status_filter) queryParams.append('status_filter', params.status_filter);
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.offset) queryParams.append('offset', params.offset.toString());
-    
+
     return apiRequest(`/api/v1/orders/?${queryParams.toString()}`);
   },
 
-  getById: async (id: number) => {
+  getById: async (id: string) => {
     return apiRequest(`/api/v1/orders/${id}`);
   },
 
@@ -248,7 +248,7 @@ export const ordersAPI = {
     return apiRequest(`/api/v1/orders/number/${orderNumber}`);
   },
 
-  cancel: async (id: number) => {
+  cancel: async (id: string) => {
     return apiRequest(`/api/v1/orders/${id}/cancel`, {
       method: 'POST',
     });
@@ -300,7 +300,7 @@ export const adminProductsAPI = {
     });
   },
 
-  update: async (productId: number, updateData: {
+  update: async (productId: string, updateData: {
     product_name?: string;
     description?: string;
     short_description?: string;
@@ -317,7 +317,7 @@ export const adminProductsAPI = {
     });
   },
 
-  updatePrice: async (productId: number, priceData: {
+  updatePrice: async (productId: string, priceData: {
     base_price?: number;
     sale_price?: number;
     is_on_sale?: boolean;
@@ -329,7 +329,7 @@ export const adminProductsAPI = {
     });
   },
 
-  updateInventory: async (productId: number, inventoryData: {
+  updateInventory: async (productId: string, inventoryData: {
     quantity_available?: number;
     reorder_level?: number;
   }) => {
@@ -339,7 +339,7 @@ export const adminProductsAPI = {
     });
   },
 
-  delete: async (productId: number) => {
+  delete: async (productId: string) => {
     return apiRequest(`/api/v1/admin/products/${productId}`, {
       method: 'DELETE',
     });
@@ -353,11 +353,11 @@ export const adminOrdersAPI = {
     if (params?.page) queryParams.append('page', params.page.toString());
     if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
     if (params?.status_filter) queryParams.append('status_filter', params.status_filter);
-    
+
     return apiRequest(`/api/v1/admin/orders?${queryParams.toString()}`);
   },
 
-  updateStatus: async (orderId: number, orderStatus: string) => {
+  updateStatus: async (orderId: string, orderStatus: string) => {
     return apiRequest(`/api/v1/admin/orders/${orderId}/status`, {
       method: 'PUT',
       body: JSON.stringify({ order_status: orderStatus }),
@@ -373,5 +373,12 @@ export const adminInventoryAPI = {
 
   getOutOfStock: async () => {
     return apiRequest('/api/v1/admin/inventory/out-of-stock');
+  },
+};
+
+// Banners API
+export const bannersAPI = {
+  getActive: async () => {
+    return apiRequest('/api/v1/banners/active');
   },
 };

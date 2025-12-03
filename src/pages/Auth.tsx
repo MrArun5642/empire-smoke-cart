@@ -8,8 +8,11 @@ import { authAPI } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+import { useAuth } from "@/contexts/AuthContext";
+
 const Auth = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const [loginData, setLoginData] = useState({
@@ -32,7 +35,8 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      await authAPI.login(loginData.email, loginData.password);
+      const response = await authAPI.login(loginData.email, loginData.password);
+      login(response); // Update context
       toast.success("Welcome back!");
       navigate("/");
     } catch (error) {
@@ -105,8 +109,8 @@ const Auth = () => {
                       className="bg-secondary border-border"
                     />
                   </div>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                     disabled={isLoading}
                   >
@@ -206,8 +210,8 @@ const Auth = () => {
                       className="bg-secondary border-border"
                     />
                   </div>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                     disabled={isLoading}
                   >

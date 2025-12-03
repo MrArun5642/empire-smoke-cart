@@ -2,48 +2,28 @@ import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { ArrowRight, Shield, Truck, Award } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { productsAPI } from "@/lib/api";
 import heroImage from "@/assets/hero-bg.jpg";
-import productVape from "@/assets/product-vape.jpg";
-import productCigar from "@/assets/product-cigar.jpg";
-import productHookah from "@/assets/product-hookah.jpg";
 
 const Home = () => {
   const navigate = useNavigate();
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "Premium Disposable Vape - Mixed Berry",
-      brand: "Elite Vapes",
-      price: 24.99,
-      image: productVape,
-      inStock: true,
-    },
-    {
-      id: 2,
-      name: "Luxury Cigar Collection Box",
-      brand: "Royal Tobacco",
-      price: 89.99,
-      image: productCigar,
-      inStock: true,
-    },
-    {
-      id: 3,
-      name: "Premium Hookah Tobacco - Double Apple",
-      brand: "Shisha Elite",
-      price: 19.99,
-      image: productHookah,
-      inStock: true,
-    },
-    {
-      id: 4,
-      name: "Premium Disposable Vape - Mango Ice",
-      brand: "Elite Vapes",
-      price: 24.99,
-      image: productVape,
-      inStock: true,
-    },
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const products = await productsAPI.getFeatured(4);
+        setFeaturedProducts(products);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const features = [
     {
@@ -67,13 +47,13 @@ const Home = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/60" />
         </div>
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-2xl">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
@@ -83,11 +63,11 @@ const Home = () => {
               </span>
             </h1>
             <p className="text-xl text-foreground/80 mb-8">
-              Discover our curated selection of premium tobacco and vape products. 
+              Discover our curated selection of premium tobacco and vape products.
               Quality guaranteed, age verification required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
+              <Button
                 size="lg"
                 onClick={() => navigate("/products")}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-premium"
@@ -95,7 +75,7 @@ const Home = () => {
                 Shop Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button 
+              <Button
                 size="lg"
                 variant="outline"
                 onClick={() => navigate("/categories")}
@@ -132,7 +112,7 @@ const Home = () => {
             <h2 className="text-3xl font-bold text-foreground mb-2">Featured Products</h2>
             <p className="text-muted-foreground">Handpicked premium selections</p>
           </div>
-          <Button 
+          <Button
             variant="ghost"
             onClick={() => navigate("/products")}
             className="hidden sm:flex hover:bg-secondary"
@@ -142,14 +122,30 @@ const Home = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="text-center py-12 text-muted-foreground">Loading products...</div>
+        ) : featuredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                brand={product.brand}
+                price={parseFloat(product.price)}
+                image={product.image_url || "https://placehold.co/400x400"}
+                inStock={product.stock_quantity > 0}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-secondary/30 rounded-lg">
+            <p className="text-muted-foreground">No featured products available.</p>
+          </div>
+        )}
 
         <div className="mt-8 text-center sm:hidden">
-          <Button 
+          <Button
             variant="outline"
             onClick={() => navigate("/products")}
             className="border-primary"
@@ -169,7 +165,7 @@ const Home = () => {
           <p className="text-xl text-foreground/80 mb-8 max-w-2xl mx-auto">
             Join thousands of satisfied customers. Sign up today and get exclusive access to deals.
           </p>
-          <Button 
+          <Button
             size="lg"
             onClick={() => navigate("/auth")}
             className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-premium"
