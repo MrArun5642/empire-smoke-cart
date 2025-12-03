@@ -1,5 +1,5 @@
 // API configuration and helper functions
-const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || 'https://empiressmokedistribution-production.up.railway.app');
+const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:8000' : (import.meta.env.VITE_API_BASE_URL || 'https://127.0.0.1.5009');
 
 // Token management
 export const getToken = () => localStorage.getItem('access_token');
@@ -213,6 +213,88 @@ export const usersAPI = {
     return apiRequest('/api/v1/users/me', {
       method: 'PUT',
       body: JSON.stringify(data),
+    });
+  },
+};
+
+// Admin API
+export const adminAPI = {
+  // Product Management
+  createProduct: async (data: {
+    sku: string;
+    name: string;
+    description?: string;
+    price: number;
+    sale_price?: number;
+    stock_quantity: number;
+    brand?: string;
+    image_url?: string;
+    is_featured: boolean;
+    category_ids: number[];
+  }) => {
+    return apiRequest('/api/v1/admin/products', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateProduct: async (productId: string, data: {
+    name?: string;
+    description?: string;
+    price?: number;
+    sale_price?: number;
+    stock_quantity?: number;
+    brand?: string;
+    image_url?: string;
+    is_featured?: boolean;
+  }) => {
+    return apiRequest(`/api/v1/admin/products/${productId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteProduct: async (productId: string) => {
+    return apiRequest(`/api/v1/admin/products/${productId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Category Management
+  createCategory: async (data: {
+    name: string;
+    parent_id?: number;
+    slug?: string;
+  }) => {
+    return apiRequest('/api/v1/admin/categories', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteCategory: async (categoryId: number) => {
+    return apiRequest(`/api/v1/admin/categories/${categoryId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // User Management
+  getAllUsers: async (params?: {
+    page?: number;
+    page_size?: number;
+    status_filter?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.page_size) queryParams.append('page_size', params.page_size.toString());
+    if (params?.status_filter) queryParams.append('status_filter', params.status_filter);
+
+    return apiRequest(`/api/v1/admin/users?${queryParams.toString()}`);
+  },
+
+  updateUserStatus: async (userId: string, newStatus: string) => {
+    return apiRequest(`/api/v1/admin/users/${userId}/status?new_status=${newStatus}`, {
+      method: 'PUT',
     });
   },
 };
